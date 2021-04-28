@@ -10,14 +10,35 @@ import (
 )
 
 var (
-	// Used for flags.
+	// used for flags.
 	cfgFile string
 	workDir string
 	logLevel string
+
+	// root command
+	rootCmd = &cobra.Command{
+		Use:   "stato",
+		Short: "A static page generator",
+		Long: `Stato allows you to render template files to a webpage.`,
+	}
 )
 
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	// flags for config
+	rootCmd.PersistentFlags().StringVar(&logLevel, "loglevel", "", "log level")
+	rootCmd.PersistentFlags().StringVar(&workDir, "workdir", "", "working directory")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")
+}
+
+// Execute executes the root command.
+func Execute() error {
+	return rootCmd.Execute()
+}
+
 // Cli interface for stato
-func CliInterface() *cobra.Command {
+/*func CliInterface() *cobra.Command {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd := &cobra.Command{
@@ -33,9 +54,10 @@ func CliInterface() *cobra.Command {
 
 	// add commands
 	rootCmd.AddCommand(cmdGenerate)
+	rootCmd.AddCommand(serveGenerate)
 
 	return rootCmd
-}
+}*/
 
 func initConfig() {
 	if workDir == "" {
@@ -80,6 +102,6 @@ func initConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err == nil {
-		log.WithField("path",viper.ConfigFileUsed()).Info("Loading config file")
+		log.WithField("path",viper.ConfigFileUsed()).Info("loading config file")
 	}
 }
